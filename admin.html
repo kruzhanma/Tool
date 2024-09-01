@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel Finder - Cypher Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://i.gifer.com/fzUl.gif') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 200px;
+            height: auto;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .result .url {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .result .url.success {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+        .result .url.error {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        .result .icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.ibb.co/ZL8sg38/20240831-175822.png" alt="Cypher Tools Logo">
+        </div>
+        <h1>Admin Panel Finder</h1>
+        <p>Enter the domain to search for admin panels:</p>
+        <div class="form-group">
+            <label for="domain">Domain:</label>
+            <input type="text" id="domain" placeholder="example.com">
+        </div>
+        <div class="form-group">
+            <button onclick="findAdminPanels()">Find Admin Panels</button>
+        </div>
+        <div id="results" class="result"></div>
+    </div>
+
+    <script>
+        const adminPaths = [
+    "/admin/",
+    "/administrator/",
+    "/admin1/",
+    "/admin2/",
+    "/admin3/",
+    "/admin4/",
+    "/admin5/",
+    "/usuarios/",
+    "/usuario/",
+    "/adm/",
+    "/admin/account.php",
+    "/admin/index.php",
+    "/admin/login.php",
+    "/admin/admin.php",
+    "/admin_area/",
+    "/admin_area/admin.php",
+    "/siteadmin/login.php",
+    "/siteadmin/index.php",
+    "/admin/controlpanel.php",
+    "/admin.php",
+    "/admincp/index.asp",
+    "/admincp/login.asp",
+    "/admincp/index.html",
+    "/adminpanel.php",
+    "/admin_area/login.html",
+    "/admin_area/index.html",
+    "/admincontrol/",
+    "/admincontrol/login/",
+    "/admincontrol/index/",
+    "/cpanel/",
+    "/cpanel_file/",
+    "/whm/",
+    "/controlpanel/",
+    "/controlpanel/index.php",
+    "/controlpanel/admin.php",
+    "/admincontrol/login.php",
+    "/admincontrol/index.php",
+    "/admincontrolpanel/",
+    "/admincontrolpanel/index.php",
+    "/admincontrolpanel/login.php",
+    "/webadmin/",
+    "/webadmin/index.php",
+    "/webadmin/login.php",
+    "/serveradmin/",
+    "/serveradmin/login.php",
+    "/serveradmin/index.php",
+    "/superadmin/",
+    "/superadmin/login.php",
+    "/superadmin/index.php",
+    "/administrador/",
+    "/administrador/index.php",
+    "/administrador/login.php",
+    "/administration/",
+    "/administration/index.php",
+    "/administration/login.php",
+    "/admin1/login.php",
+    "/admin1/index.php",
+    "/admin2/login.php",
+    "/admin2/index.php",
+    "/admin3/login.php",
+    "/admin3/index.php",
+    "/admin4/login.php",
+    "/admin4/index.php",
+    "/admin5/login.php",
+    "/admin5/index.php",
+    "/admin_login/",
+    "/admin_login/index.php",
+    "/admin_login/login.php",
+    "/admin_panel/",
+    "/admin_panel/login.php",
+    "/admin_panel/index.php",
+    "/admincontrolpanel/",
+    "/admincontrolpanel/login.php",
+    "/admincontrolpanel/index.php",
+    "/management/",
+    "/management/login.php",
+    "/management/index.php",
+    "/administrator_login/",
+    "/administrator_login/login.php",
+    "/administrator_login/index.php",
+    "/superadministrator/",
+    "/superadministrator/login.php",
+    "/superadministrator/index.php",
+    "/admin_account/",
+    "/admin_account/login.php",
+    "/admin_account/index.php",
+    "/adminarea/",
+    "/adminarea/login.php",
+    "/adminarea/index.php",
+    "/cmsadmin/",
+    "/cmsadmin/login.php",
+    "/cmsadmin/index.php",
+    "/sysadmin/",
+    "/sysadmin/login.php",
+    "/sysadmin/index.php",
+    "/siteadmin/",
+    "/siteadmin/login.php",
+    "/siteadmin/index.php",
+    "/serveradmin/",
+    "/serveradmin/login.php",
+    "/serveradmin/index.php",
+    "/admindashboard/",
+    "/admindashboard/login.php",
+    "/admindashboard/index.php",
+    "/admindash/",
+    "/admindash/login.php",
+    "/admindash/index.php",
+    "/paneladmin/",
+    "/paneladmin/login.php",
+    "/paneladmin/index.php",
+    "/admincontrolpanel/",
+    "/admincontrolpanel/login.php",
+    "/admincontrolpanel/index.php",
+    "/dashboardadmin/",
+    "/dashboardadmin/login.php",
+    "/dashboardadmin/index.php",
+    "/dashboard/",
+    "/dashboard/login.php",
+    "/dashboard/index.php",
+    "/adminlogin/",
+    "/adminlogin/login.php",
+    "/adminlogin/index.php",
+    "/cpadmin/",
+    "/cpadmin/login.php",
+    "/cpadmin/index.php",
+    "/manager/",
+    "/manager/login.php",
+    "/manager/index.php",
+    "/adminarea/login.asp",
+    "/adminarea/index.asp",
+    "/adminarea/login.jsp",
+    "/adminarea/index.jsp",
+    "/admin_area/login.asp",
+    "/admin_area/index.asp",
+    "/admin_area/login.jsp",
+    "/admin_area/index.jsp",
+    "/controlpanel/login.asp",
+    "/controlpanel/index.asp",
+    "/controlpanel/login.jsp",
+    "/controlpanel/index.jsp",
+    "/cpadmin/login.asp",
+    "/cpadmin/index.asp",
+    "/cpadmin/login.jsp",
+    "/cpadmin/index.jsp",
+    "/cmsadmin/login.asp",
+    "/cmsadmin/index.asp",
+    "/cmsadmin/login.jsp",
+    "/cmsadmin/index.jsp",
+    "/sysadmin/login.asp",
+    "/sysadmin/index.asp",
+    "/sysadmin/login.jsp",
+    "/sysadmin/index.jsp",
+    "/siteadmin/login.asp",
+    "/siteadmin/index.asp",
+    "/siteadmin/login.jsp",
+    "/siteadmin/index.jsp",
+    "/serveradmin/login.asp",
+    "/serveradmin/index.asp",
+    "/serveradmin/login.jsp",
+    "/serveradmin/index.jsp",
+    "/admindashboard/login.asp",
+    "/admindashboard/index.asp",
+    "/admindashboard/login.jsp",
+    "/admindashboard/index.jsp",
+    "/admindash/login.asp",
+    "/admindash/index.asp",
+    "/admindash/login.jsp",
+    "/admindash/index.jsp",
+    "/paneladmin/login.asp",
+    "/paneladmin/index.asp",
+    "/paneladmin/login.jsp",
+    "/paneladmin/index.jsp",
+    "/admincontrolpanel/login.asp",
+    "/admincontrolpanel/index.asp",
+    "/admincontrolpanel/login.jsp",
+    "/admincontrolpanel/index.jsp",
+    "/dashboardadmin/login.asp",
+    "/dashboardadmin/index.asp",
+    "/dashboardadmin/login.jsp",
+    "/dashboardadmin/index.jsp",
+    "/adminpanel/login.php",
+    "/adminpanel/index.php",
+    "/admin_panel/login.php",
+    "/admin_panel/index.php",
+    "/administration/login.php",
+    "/administration/index.php",
+    "/system_admin/login.php",
+    "/system_admin/index.php",
+    "/controlpanel/login.php",
+    "/controlpanel/index.php",
+    "/webmaster/",
+    "/webmaster/login.php",
+    "/webmaster/index.php",
+    "/admincp/",
+    "/admincp/login.php",
+    "/admincp/index.php",
+    "/admin-console/",
+    "/admin-console/login.php",
+    "/admin-console/index.php",
+    "/control_panel/",
+    "/control_panel/login.php",
+    "/control_panel/index.php",
+    "/cms-admin/",
+    "/cms-admin/login.php",
+    "/cms-admin/index.php",
+    "/system-admin/",
+    "/system-admin/login.php",
+    "/system-admin/index.php",
+    "/sysadmincp/",
+    "/sysadmincp/login.php",
+    "/sysadmincp/index.php",
+    "/managementcp/",
+    "/managementcp/login.php",
+    "/managementcp/index.php",
+    "/adminportal/",
+    "/adminportal/login.php",
+    "/adminportal/index.php",
+    "/adminloginpanel/",
+    "/adminloginpanel/login.php",
+    "/adminloginpanel/index.php",
+    "/admin_console/",
+    "/admin_console/login.php",
+    "/admin_console/index.php",
+    "/superadminpanel/",
+    "/superadminpanel/login.php",
+    "/superadminpanel/index.php",
+    "/superadminlogin/",
+    "/superadminlogin/login.php",
+    "/superadminlogin/index.php",
+    "/administratorpanel/",
+    "/administratorpanel/login.php",
+    "/administratorpanel/index.php",
+    "/admin_loginpanel/",
+    "/admin_loginpanel/login.php",
+    "/admin_loginpanel/index.php",
+    "/admincontrolpanel/",
+    "/admincontrolpanel/login.php",
+    "/admincontrolpanel/index.php",
+    "/administratorlogin/",
+    "/administratorlogin/login.php",
+    "/administratorlogin/index.php",
+    "/admincontrolpanel/",
+    "/admincontrolpanel/login.php",
+    "/admincontrolpanel/index.php",
+    "/management_panel/",
+    "/management_panel/login.php",
+    "/management_panel/index.php",
+    "/managementlogin/",
+    "/managementlogin/login.php",
+    "/managementlogin/index.php",
+    "/systemcp/",
+    "/systemcp/login.php",
+    "/systemcp/index.php",
+    "/systemcontrolpanel/",
+    "/systemcontrolpanel/login.php",
+    "/systemcontrolpanel/index.php",
+    "/systemlogin/",
+    "/systemlogin/login.php",
+    "/systemlogin/index.php",
+    "/admin_area/",
+    "/admin_area/login.php",
+    "/admin_area/index.php",
+    "/siteadminpanel/",
+    "/siteadminpanel/login.php",
+    "/siteadminpanel/index.php",
+    "/siteadminlogin/",
+    "/siteadminlogin/login.php",
+    "/siteadminlogin/index.php",
+    "/site_admin/",
+    "/site_admin/login.php",
+    "/site_admin/index.php",
+    "/control_panel/",
+    "/control_panel/login.php",
+    "/control_panel/index.php",
+    "/webmastercontrolpanel/",
+    "/webmastercontrolpanel/login.php",
+    "/webmastercontrolpanel/index.php",
+    "/webmasterlogin/",
+    "/webmasterlogin/login.php",
+    "/webmasterlogin/index.php",
+    "/admin_panel/",
+    "/admin_panel/login.php",
+    "/admin_panel/index.php",
+    "/control_panel/",
+    "/control_panel/login.php",
+    "/control_panel/index.php",
+    "/serveradminpanel/",
+    "/serveradminpanel/login.php",
+    "/serveradminpanel/index.php",
+    "/serveradminlogin/",
+    "/serveradminlogin/login.php",
+    "/serveradminlogin/index.php",
+    "/serveradminpanel/",
+    "/serveradminpanel/login.php",
+    "/serveradminpanel/index.php",
+    "/sysadminpanel/",
+    "/sysadminpanel/login.php",
+    "/sysadminpanel/index.php",
+    "/sys_admin/",
+    "/sys_admin/login.php",
+    "/sys_admin/index.php",
+    "/login-admin/",
+    "/login-admin/index.php"
+];
+
+        function findAdminPanels() {
+            const domain = document.getElementById('domain').value;
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            if (!domain) {
+                alert('Please enter a domain.');
+                return;
+            }
+
+            adminPaths.forEach(path => {
+                const url = `https://${domain}${path}`;
+                fetch(url, { method: 'HEAD' })
+                    .then(response => {
+                        const status = response.ok ? 'success' : 'error';
+                        const icon = response.ok ? '✔️' : '❌';
+                        results.innerHTML += `
+                            <div class="url ${status}">
+                                <span class="icon">${icon}</span>
+                                <span>${url}</span>
+                                <span>${response.status}</span>
+                            </div>`;
+                    })
+                    .catch(error => {
+                        results.innerHTML += `
+                            <div class="url error">
+                                <span class="icon">❌</span>
+                                <span>${url}</span>
+                                <span>Error</span>
+                            </div>`;
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

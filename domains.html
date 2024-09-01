@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cypher - Domain Certificate Query Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('background-image-url.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 5px;
+        }
+        .form-group input {
+            margin-bottom: 10px;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        #results ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #results ul li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .status-icon.valid {
+            background-color: green;
+        }
+        .status-icon.error {
+            background-color: red;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://i.ibb.co/ZL8sg38/20240831-175822.png" alt="Cypher Logo" class="logo">
+        <h1>Cypher - Domain Certificate Query Tool</h1>
+        <div class="form-group">
+            <label for="domain">Enter Domain to Query (e.g., example.com):</label>
+            <input type="text" id="domain" placeholder="Enter domain">
+        </div>
+        <div class="form-group">
+            <button onclick="performQuery()">Fetch Domains</button>
+        </div>
+        <div id="results">
+            <h2>Results:</h2>
+            <ul id="resultsList"></ul>
+        </div>
+        <div class="form-group">
+            <button onclick="downloadResults()">Download Results as JSON</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://api.certspotter.com/v1/issuances?domain=";
+
+        function performQuery() {
+            const domain = document.getElementById('domain').value;
+            if (!domain) {
+                alert('Please enter a domain.');
+                return;
+            }
+
+            const url = `${API_URL}${encodeURIComponent(domain)}&include_subdomains=true&expand=dns_names`;
+
+            fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const domains = new Set();
+                data.forEach(cert => {
+                    cert.dns_names.forEach(name => domains.add(name));
+                });
+
+                displayResults(Array.from(domains));
+            })
+            .catch(error => {
+                alert('Error fetching data: ' + error.message);
+            });
+        }
+
+        function displayResults(domains) {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+
+            if (domains.length === 0) {
+                resultsList.innerHTML = '<li><span class="status-icon error"></span>No domains found.</li>';
+            } else {
+                domains.forEach(domain => {
+                    const li = document.createElement('li');
+                    const icon = document.createElement('span');
+                    icon.className = 'status-icon valid';
+                    const text = document.createTextNode(domain);
+
+                    li.appendChild(icon);
+                    li.appendChild(text);
+                    resultsList.appendChild(li);
+                });
+            }
+        }
+
+        function downloadResults() {
+            const domains = Array.from(document.getElementById('resultsList').children).map(li => li.textContent.trim());
+            const blob = new Blob([JSON.stringify(domains, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'domains.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
